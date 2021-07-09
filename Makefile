@@ -48,15 +48,15 @@ clean:
 .SECONDEXPANSION:
 
 $(TARGET): $(OBJ_FILES)
-	@echo " $(CYAN)Archiving$(RESET) $@ . . ."
+	@echo "   $(CYAN)Archiving$(RESET) $@ . . ."
 	@$(AR) $(AR_FLAGS) $@ $^
 
 $(CRT0): $(CRT0_SRC)
-	@echo "$(CYAN)Assembling$(RESET) $@ . . ."
+	@echo "  $(CYAN)Assembling$(RESET) $@ . . ."
 	@$(ASM) $(ASM_FLAGS) -o $@ $^
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $$(@D)/.
-	@echo " $(CYAN)Compiling$(RESET) $^ . . ."
+	@echo "   $(CYAN)Compiling$(RESET) $^ . . ."
 	@$(CC) $(CC_FLAGS) -o $@ $^
 
 # DIRECTORY RULES
