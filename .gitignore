@@ -1,0 +1,3 @@
+obj/
+crt0.o
+libc.a
