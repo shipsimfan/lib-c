@@ -1,4 +1,5 @@
 EXTERN main
+EXTERN exit
 
 GLOBAL _start
 _start:
@@ -6,5 +7,5 @@ _start:
 
 	call main
 
-	.hang:
-		jmp .hang
+	mov rdi, rax
+	call exit
