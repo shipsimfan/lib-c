@@ -6,8 +6,10 @@ char* getenv(const char* name) {
         char* ptr = *envp;
         for (int j = 0; *ptr; ptr++, j++) {
             if (*ptr == '=') {
-                if (name[j] == 0)
-                    return *envp;
+                if (name[j] == 0) {
+                    ptr++;
+                    return ptr;
+                }
                 break;
             }
 
