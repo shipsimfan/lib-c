@@ -89,13 +89,18 @@ size_t etoa(PrintfOutput output, double value, unsigned int prec, unsigned int w
     idx = ftoa(output, negative ? -value : value, prec, fwidth, flags & ~FLAGS_ADAPT_EXP, idx);
 
     if (minWidth) {
-        output((flags & FLAGS_UPPERCASE) ? 'E' : 'e');
+        if (output((flags & FLAGS_UPPERCASE) ? 'E' : 'e') < 0)
+            return -1;
         idx++;
 
         idx = ntoa(output, (expval < 0) ? -expval : expval, expval < 0, 10, 0, minWidth - 1, FLAGS_ZEROPAD | FLAGS_PLUS, idx);
+        if (idx < 0)
+            return idx;
+
         if (flags & FLAGS_LEFT) {
             while (idx - startIdx < width) {
-                output(' ');
+                if (output(' ') < 0)
+                    return -1;
                 idx++;
             }
         }
@@ -107,22 +112,32 @@ size_t etoa(PrintfOutput output, double value, unsigned int prec, unsigned int w
 size_t ftoa(PrintfOutput output, double value, unsigned int prec, unsigned int width, unsigned int flags, size_t idx) {
     char buf[PRINTF_FTOA_BUFFER_SIZE];
     if (value != value) {
-        output('n');
-        output('a');
-        output('n');
+        if (output('n') < 0)
+            return -1;
+        if (output('a') < 0)
+            return -1;
+        if (output('n') < 0)
+            return -1;
         return idx + 3;
     }
     if (value < -__DBL_MAX__) {
-        output('-');
-        output('i');
-        output('n');
-        output('f');
+        if (output('-') < 0)
+            return -1;
+        if (output('i') < 0)
+            return -1;
+        if (output('n') < 0)
+            return -1;
+        if (output('f') < 0)
+            return -1;
         return idx + 4;
     }
     if (value > __DBL_MAX__) {
-        output('i');
-        output('n');
-        output('f');
+        if (output('i') < 0)
+            return -1;
+        if (output('n') < 0)
+            return -1;
+        if (output('f') < 0)
+            return -1;
         return idx + 3;
     }
 
@@ -204,7 +219,8 @@ size_t ftoa(PrintfOutput output, double value, unsigned int prec, unsigned int w
     }
 
     while (len) {
-        output(buf[--len]);
+        if (output(buf[--len]) < 0)
+            return -1;
         idx++;
     }
 
@@ -266,19 +282,22 @@ size_t ntoa(PrintfOutput output, unsigned long long value, int negative, unsigne
 
     if (!(flags & FLAGS_LEFT) && !(flags & FLAGS_ZEROPAD)) {
         for (size_t i = len; i < width; i++) {
-            output(' ');
+            if (output(' ') < 0)
+                return -1;
             idx++;
         }
     }
 
     while (len) {
-        output(buf[--len]);
+        if (output(buf[--len]) < 0)
+            return -1;
         idx++;
     }
 
     if (flags & FLAGS_LEFT) {
         while (idx - start_idx < width) {
-            output(' ');
+            if (output(' ') < 0)
+                return -1;
             idx++;
         }
     }
@@ -293,7 +312,8 @@ int internal_printf(PrintfOutput output, const char* format, va_list arg) {
     while (*format) {
         // Check for specifier
         if (*format != '%') {
-            output(*format);
+            if (output(*format) < 0)
+                return -1;
             format++;
             continue;
         }
@@ -467,6 +487,9 @@ int internal_printf(PrintfOutput output, const char* format, va_list arg) {
                 }
             }
 
+            if (idx < 0)
+                return idx;
+
             format++;
             break;
         }
@@ -476,6 +499,8 @@ int internal_printf(PrintfOutput output, const char* format, va_list arg) {
                 flags |= FLAGS_UPPERCASE;
 
             idx = ftoa(output, va_arg(arg, double), precision, width, flags, idx);
+            if (idx < 0)
+                return idx;
             format++;
             break;
 
@@ -489,6 +514,9 @@ int internal_printf(PrintfOutput output, const char* format, va_list arg) {
                 flags |= FLAGS_UPPERCASE;
 
             idx = etoa(output, va_arg(arg, double), precision, width, flags, idx);
+            if (idx < 0)
+                return idx;
+
             format++;
             break;
 
@@ -496,15 +524,20 @@ int internal_printf(PrintfOutput output, const char* format, va_list arg) {
             unsigned int l = 1;
             if (!(flags & FLAGS_LEFT)) {
                 while (l++ < width) {
-                    output(' ');
+                    if (output(' ') < 0)
+                        return -1;
                     idx++;
                 }
             }
 
-            output((char)va_arg(arg, int));
+            if (output((char)va_arg(arg, int)) < 0)
+                return -1;
+            idx++;
+
             if (flags & FLAGS_LEFT) {
                 while (l++ < width) {
-                    output(' ');
+                    if (output(' ') < 0)
+                        return -1;
                     idx++;
                 }
             }
@@ -522,19 +555,22 @@ int internal_printf(PrintfOutput output, const char* format, va_list arg) {
 
             if (!(flags & FLAGS_LEFT)) {
                 while (l++ < width) {
-                    output(' ');
+                    if (output(' ') < 0)
+                        return -1;
                     idx++;
                 }
             }
 
             while ((*p != 0) && (!(flags & FLAGS_PRECISION) || precision--)) {
-                output(*(p++));
+                if (output(*(p++)) < 0)
+                    return -1;
                 idx++;
             }
 
             if (flags & FLAGS_LEFT) {
                 while (l++ < width) {
-                    output(' ');
+                    if (output(' ') < 0)
+                        return -1;
                     idx++;
                 }
             }
@@ -546,18 +582,22 @@ int internal_printf(PrintfOutput output, const char* format, va_list arg) {
             width = sizeof(void*) * 2;
             flags |= FLAGS_ZEROPAD | FLAGS_UPPERCASE;
             idx = ntoa(output, (unsigned long long)va_arg(arg, void*), 0, 16, precision, width, flags, idx);
+            if (idx < 0)
+                return idx;
             format++;
             break;
         }
 
         case '%':
-            output('%');
+            if (output('%') < 0)
+                return -1;
             idx++;
             format++;
             break;
 
         default:
-            output(*format);
+            if (output(*format) < 0)
+                return -1;
             idx++;
             format++;
             break;
