@@ -15,4 +15,6 @@ char* strncat(char* dest, const char* src, size_t n);
 char* strtok(char* str, const char* delim);
 char* strtok_r(char* str, const char* delim, char** saveptr);
 
+char* strerror(int errnum);
+
 #endif
