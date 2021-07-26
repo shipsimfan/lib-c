@@ -1,42 +1,38 @@
-SECTION .bss
-argc: resq 1
-argv: resq 1
-envp: resq 1
-
-SECTION .text
-EXTERN initialize_standard_library
+EXTERN initialize_lib_kernel
 EXTERN main
 EXTERN exit
+EXTERN environ
 
 GLOBAL _start
 _start:
 	mov rsp, 0x7FFFFFFFFFF0
 
-	; Save argc, argv, envp
-	mov rcx, [rdi]
-	mov rdx, argc
-	mov [rdx], rcx
+	; Save argc, argv, and envp
+	mov rax, [rdi]
+	push rax
 	add rdi, 8
-	mov rcx, [rdi]
-	mov rdx, argv
-	mov [rdx], rcx
+	mov rax, [rdi]
+	push rax
 	add rdi, 8
-	mov rcx, [rdi]
-	mov rdx, envp
-	mov [rdx], rcx
+	mov rax, [rdi]
+	push rax
+
+	; Set environ
+	mov rbx, environ
+	mov [rbx], rax
 
 	; Initialize standard library
-	mov rcx, envp
-	mov rdi, [rcx]
-	call initialize_standard_library
+	mov rax, rdi
+	add rax, 8
+	mov rdi, [rax]
+	add rax, 8
+	mov rsi, [rax]
+	call initialize_lib_kernel
 
 	; Call main
-	mov rcx, argc
-	mov rdi, [rcx]
-	mov rcx, argv
-	mov rsi, [rcx]
-	mov rcx, envp
-	mov rdx, [rcx]
+	pop rdx
+	pop rsi
+	pop rdi
 	call main
 
 	mov rdi, rax
