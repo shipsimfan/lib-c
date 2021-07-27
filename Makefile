@@ -8,14 +8,14 @@ INCLUDE_INSTALL_DIR := $(SYSROOT_DIR)/los
 
 # SOURCE FILES
 SRC_FILES := $(shell find $(SRC_DIR) -name '*.c')
-CRT0_SRC := ./crt0.asm
+CRT_SRC := $(shell find . -name 'crt*.asm')
 
 # OBJECT FILES
 OBJ_FILES := $(SRC_FILES:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
 
 # TARGET
 TARGET := ./libc.a
-CRT0 := ./crt0.o
+CRT := $(CRT_SRC:%.asm=%.o)
 
 # PROGRAMS
 ASM := nasm
@@ -32,17 +32,17 @@ CYAN := \033[36;1m
 RESET := \033[0m
 
 # RULES
-all: dirs $(TARGET) $(CRT0)
+all: dirs $(TARGET) $(CRT)
 
 install: all
 	@cp $(TARGET) $(LIB_INSTALL_DIR)
 	@cp -r $(INCLUDE_DIR) $(INCLUDE_INSTALL_DIR)
-	@cp $(CRT0) $(LIB_INSTALL_DIR)
+	@cp ./crt*.o $(LIB_INSTALL_DIR)
 
 clean:
 	@rm -rf $(OBJ_DIR)/*
 	@rm -f $(TARGET)
-	@rm -f $(CRT0)
+	@rm -f $(CRT)
 
 # COMPILATION RULES
 .SECONDEXPANSION:
@@ -51,7 +51,7 @@ $(TARGET): $(OBJ_FILES)
 	@echo "   $(CYAN)Archiving$(RESET) $@ . . ."
 	@$(AR) $(AR_FLAGS) $@ $^
 
-$(CRT0): $(CRT0_SRC)
+./crt%.o: ./crt%.asm 
 	@echo "  $(CYAN)Assembling$(RESET) $@ . . ."
 	@$(ASM) $(ASM_FLAGS) -o $@ $^
 

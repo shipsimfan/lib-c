@@ -4,8 +4,8 @@
 #include <stdarg.h>
 #include <stdint.h>
 
-typedef int64_t (*PrintfOutput)(char character);
+typedef int (*PrintfOutput)(int character, void* context);
 
-int internal_printf(PrintfOutput output, const char* format, va_list arg);
+int __internal_printf(PrintfOutput output, void* output_context, const char* format, va_list arg);
 
 #endif

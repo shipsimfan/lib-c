@@ -2,6 +2,7 @@ EXTERN initialize_lib_kernel
 EXTERN main
 EXTERN exit
 EXTERN environ
+EXTERN _init
 
 GLOBAL _start
 _start:
@@ -28,6 +29,9 @@ _start:
 	add rax, 8
 	mov rsi, [rax]
 	call initialize_lib_kernel
+
+	; Call global constructors
+	call _init
 
 	; Call main
 	pop rdx
