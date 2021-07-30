@@ -82,6 +82,14 @@ char* strerror(int errnum) {
         return "Argument security";
     case EINVSESSION:
         return "Invalid session";
+    case ERDONLY:
+        return "Read only";
+    case EWRONLY:
+        return "Write only";
+    case ENORESOURCE:
+        return "Out of resource";
+    case ECORRUPTFILESYSTEM:
+        return "Corrupt filesytem";
     default:
         return "Unknown error";
     }
