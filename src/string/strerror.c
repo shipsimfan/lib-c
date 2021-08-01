@@ -90,6 +90,8 @@ char* strerror(int errnum) {
         return "Out of resource";
     case ECORRUPTFILESYSTEM:
         return "Corrupt filesytem";
+    case EISFILE:
+        return "Is file";
     default:
         return "Unknown error";
     }
