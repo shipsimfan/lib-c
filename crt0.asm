@@ -3,6 +3,7 @@ EXTERN main
 EXTERN exit
 EXTERN environ
 EXTERN _init
+EXTERN __initialize_lib_c
 
 GLOBAL _start
 _start:
@@ -22,13 +23,22 @@ _start:
 	mov rbx, environ
 	mov [rbx], rax
 
-	; Initialize standard library
+	; Save stdio
+	add rdi, 8
+	mov rax, [rdi]
+	push rax
+
+	; Initialize kernel library
 	mov rax, rdi
 	add rax, 8
 	mov rdi, [rax]
 	add rax, 8
 	mov rsi, [rax]
 	call initialize_lib_kernel
+
+	; Initialize c library
+	pop rdi
+	call __initialize_lib_c
 
 	; Call global constructors
 	call _init

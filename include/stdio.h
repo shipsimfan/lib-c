@@ -5,10 +5,21 @@
 
 typedef __SIZE_TYPE__ size_t;
 typedef struct {
+    unsigned long type;
+    long descriptor;
+    int buffer_type;
+    char* buffer;
+    int buffer_capacity;
+    int buffer_length;
+    int unbuffered_buffer;
 } FILE;
 typedef __INTPTR_TYPE__ fpos_t;
 
 #define NULL ((void*)0)
+#define _IOFBF 0
+#define _IOLBF 1
+#define _IONBF 2
+#define BUFSIZ 4096
 #define EOF -1
 #define FOPEN_MAX 256
 #define FILENAME_MAX 4096
@@ -22,6 +33,9 @@ extern FILE __stderr;
 extern FILE __stdout;
 
 int fflush(FILE* stream);
+void setbuf(FILE* stream, char* buffer);
+int setvbuf(FILE* stream, char* buffer, int mode, size_t size);
+size_t fwrite(const void* ptr, size_t size, size_t nmemb, FILE* stream);
 int fprintf(FILE* stream, const char* format, ...);
 int printf(const char* format, ...);
 int sprintf(char* str, const char* format, ...);
