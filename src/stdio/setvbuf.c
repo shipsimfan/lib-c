@@ -12,6 +12,7 @@ int setvbuf(FILE* stream, char* buffer, int mode, size_t size) {
     else
         stream->buffer_capacity = size;
     stream->buffer_length = 0;
+    stream->buffer_offset = 0;
 
     return 0;
 }
