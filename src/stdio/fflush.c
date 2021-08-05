@@ -19,6 +19,7 @@ int fflush(FILE* stream) {
                 int64_t status = console_write(stream->buffer, stream->buffer_length);
 
                 stream->buffer_length = 0;
+                stream->buffer_offset = 0;
 
                 if(status < 0) {
                     stream->flags |= FILE_FLAG_ERROR;

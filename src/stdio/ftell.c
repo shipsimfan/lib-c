@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include <los/process.h>
+#include <los/filesystem.h>
 
 long int ftell(FILE* stream) {
     if(stream->type == STDIO_TYPE_FILE) {

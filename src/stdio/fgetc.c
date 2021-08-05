@@ -2,6 +2,7 @@
 
 #include "stdio.h"
 #include <los.h>
+#include <stdlib.h>
 
 typedef struct {
     uint64_t code;
@@ -72,12 +73,16 @@ char __translate_keycode(uint64_t keycode, int caps) {
             return '}';
         case KEYCODE_TICK:
             return '~';
+        case KEYCODE_ENTER:
+            return '\n';
         default:
             if ((char)keycode >= 'a' && (char)keycode <= 'z')
                 return ((char)keycode) - 'a' + 'A';
             return (char)keycode;
         }
     } else {
+        if (keycode == KEYCODE_ENTER)
+            return '\n';
         return (char)keycode;
     }
 }
@@ -103,12 +108,21 @@ int __read_char_console() {
 }
 
 int fgetc(FILE* stream) {
+    // Check for ungetc
+    if(stream->ungetc != NULL) {
+        UngetcNode* node = stream->ungetc;
+        int ret = node->c;
+        stream->ungetc = node->next;
+        free(node);
+        return ret;
+    }
+
     if(stream->buffer_type == _IONBF) {
         switch(stream->type) {
         case STDIO_TYPE_CONSOLE: {
             int ret = __read_char_console();
             if(ret < 0)
-                stream |= FILE_FLAG_ERROR;
+                stream->flags |= FILE_FLAG_ERROR;
             return ret;
         }
 
@@ -138,10 +152,47 @@ int fgetc(FILE* stream) {
 
             // Get next buffer
             switch(stream->type) {
+            case STDIO_TYPE_CONSOLE: {
+                int ret;
+                while(1) {
+                    ret = __read_char_console();
+
+                    if(ret < 0) {
+                        stream->flags |= FILE_FLAG_ERROR;
+                        return -1;
+                    }
+
+                    stream->buffer[stream->buffer_length] = ret;
+                    stream->buffer_length++;
+
+                    if(ret == '\n' || stream->buffer_length == stream->buffer_capacity)
+                        break;
+                }
+                break;
+            }
                 
+            case STDIO_TYPE_FILE: {
+                int64_t bytes_read = read_file(stream->descriptor, stream->buffer, stream->buffer_capacity);
+                if(bytes_read >= 0) {
+                    stream->buffer_length = bytes_read;
+                    break;
+                } else if(bytes_read == -1) {
+                    stream->flags |= FILE_FLAG_EOF;
+                    return -1;
+                } else {
+                    stream->flags |= FILE_FLAG_ERROR;
+                    return -1;
+                }
+            }  
+
+            default:
+                stream->flags |= FILE_FLAG_ERROR;
+                return EOF;
             }
         }
 
-
+        int ret = stream->buffer[stream->buffer_offset];
+        stream->buffer_offset++;
+        return ret;
     }
 }

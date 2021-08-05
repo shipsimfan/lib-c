@@ -1,5 +1,7 @@
 #include <stdio.h>
 
+#include "stdio.h"
+#include <stdlib.h>
 #include <los/process.h>
 #include <los/filesystem.h>
 
