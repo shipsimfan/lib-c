@@ -5,13 +5,13 @@
 #include <stdlib.h>
 
 typedef struct {
-    uint64_t code;
-    uint64_t state;
+    usize code;
+    usize state;
 } KeyEvent;
 
 int __read_char_event(KeyEvent* key) {
     Event e;
-    int64_t status;
+    isize status;
     while (1) {
         while ((status = peek_event(&e))) {
             if (status != 1)
@@ -26,7 +26,7 @@ int __read_char_event(KeyEvent* key) {
     }
 }
 
-char __translate_keycode(uint64_t keycode, int caps) {
+char __translate_keycode(usize keycode, int caps) {
     if (caps) {
         switch (keycode) {
         case KEYCODE_SPACE:
@@ -89,7 +89,7 @@ char __translate_keycode(uint64_t keycode, int caps) {
 
 int __read_char_console() {
     KeyEvent key;
-    if(__read_char_event(&key) < 0)
+    if (__read_char_event(&key) < 0)
         return -1;
 
     int caps_status = 0;
@@ -101,7 +101,7 @@ int __read_char_console() {
 
     char c = __translate_keycode(key.code, caps_status);
 
-    if(console_write_ch(c) < 0)
+    if (console_write_ch(c) < 0)
         return -1;
 
     return c;
@@ -109,7 +109,7 @@ int __read_char_console() {
 
 int fgetc(FILE* stream) {
     // Check for ungetc
-    if(stream->ungetc != NULL) {
+    if (stream->ungetc != NULL) {
         UngetcNode* node = stream->ungetc;
         int ret = node->c;
         stream->ungetc = node->next;
@@ -117,22 +117,22 @@ int fgetc(FILE* stream) {
         return ret;
     }
 
-    if(stream->buffer_type == _IONBF) {
-        switch(stream->type) {
+    if (stream->buffer_type == _IONBF) {
+        switch (stream->type) {
         case STDIO_TYPE_CONSOLE: {
             int ret = __read_char_console();
-            if(ret < 0)
+            if (ret < 0)
                 stream->flags |= FILE_FLAG_ERROR;
             return ret;
         }
 
         case STDIO_TYPE_FILE: {
             int ret;
-            int64_t status = read_file(stream->descriptor, &ret, 1);
+            isize status = read_file(stream->descriptor, &ret, 1);
             if (status == -1) {
                 stream->flags |= FILE_FLAG_EOF;
                 return -1;
-            } else if(status < 0) {
+            } else if (status < 0) {
                 stream->flags |= FILE_FLAG_ERROR;
                 return -1;
             }
@@ -145,19 +145,19 @@ int fgetc(FILE* stream) {
             return EOF;
         }
     } else {
-        if(stream->buffer_offset == stream->buffer_length) {
+        if (stream->buffer_offset == stream->buffer_length) {
             // Flush the current buffer
-            if(fflush(stream) < 0)
+            if (fflush(stream) < 0)
                 return -1;
 
             // Get next buffer
-            switch(stream->type) {
+            switch (stream->type) {
             case STDIO_TYPE_CONSOLE: {
                 int ret;
-                while(1) {
+                while (1) {
                     ret = __read_char_console();
 
-                    if(ret < 0) {
+                    if (ret < 0) {
                         stream->flags |= FILE_FLAG_ERROR;
                         return -1;
                     }
@@ -165,25 +165,25 @@ int fgetc(FILE* stream) {
                     stream->buffer[stream->buffer_length] = ret;
                     stream->buffer_length++;
 
-                    if(ret == '\n' || stream->buffer_length == stream->buffer_capacity)
+                    if (ret == '\n' || stream->buffer_length == stream->buffer_capacity)
                         break;
                 }
                 break;
             }
-                
+
             case STDIO_TYPE_FILE: {
-                int64_t bytes_read = read_file(stream->descriptor, stream->buffer, stream->buffer_capacity);
-                if(bytes_read >= 0) {
+                isize bytes_read = read_file(stream->descriptor, stream->buffer, stream->buffer_capacity);
+                if (bytes_read >= 0) {
                     stream->buffer_length = bytes_read;
                     break;
-                } else if(bytes_read == -1) {
+                } else if (bytes_read == -1) {
                     stream->flags |= FILE_FLAG_EOF;
                     return -1;
                 } else {
                     stream->flags |= FILE_FLAG_ERROR;
                     return -1;
                 }
-            }  
+            }
 
             default:
                 stream->flags |= FILE_FLAG_ERROR;
