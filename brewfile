@@ -1,0 +1,11 @@
+name = c
+type = library
+languages = c
+
+# Dependencies
+dependencies = lib-kernel
+
+# Objects
+crt0.o = assembly,crt0.asm,./lib/crt0.o
+crti.o = assembly,crti.asm,./lib/crti.o
+crtn.o = assembly,crtn.asm,./lib/crtn.o
