@@ -2,4 +2,7 @@
 
 #include <los/signal.h>
 
-int raise(int sig) { return (int)raise_self((u8)sig); }
+int raise(int sig) {
+    raise_self((u8)sig);
+    return 0;
+}
