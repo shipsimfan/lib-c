@@ -2,7 +2,7 @@
 
 #include <errno.h>
 
-char* strerror(int errnum) {
+char *strerror(int errnum) {
     switch (errnum) {
     case EOK:
         return "Success";
@@ -92,6 +92,8 @@ char* strerror(int errnum) {
         return "Corrupt filesytem";
     case EISFILE:
         return "Is file";
+    case EINVTHREAD:
+        return "Invalid thread";
     default:
         return "Unknown error";
     }

@@ -19,7 +19,7 @@ extern char** environ;
 
 #define atof(str) strtod(str, NULL)
 #define atoi(str) ((int)strtol(str, NULL, 10))
-#define atol(str) strtol(str, NULL)
+#define atol(str) strtol(str, NULL, 10)
 double strtod(const char* str, char** endptr);
 long int strtol(const char* str, char** endptr, int base);
 unsigned long int strtoul(const char* str, char** endptr, int base);
