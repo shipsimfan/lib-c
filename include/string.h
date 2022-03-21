@@ -3,7 +3,9 @@
 
 typedef __SIZE_TYPE__ size_t;
 
+#ifndef NULL
 #define NULL ((void*)0)
+#endif
 
 void* memchr(const void* str, int c, size_t n);
 int memcmp(const void* str1, const void* str2, size_t n);

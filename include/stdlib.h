@@ -11,7 +11,10 @@ typedef struct {
     long int rem;
 } ldiv_t;
 
+#ifndef NULL
 #define NULL ((void*)0)
+#endif
+
 #define EXIT_FAILURE 1
 #define EXIT_SUCCESS 0
 

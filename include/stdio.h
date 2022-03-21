@@ -19,7 +19,10 @@ typedef struct {
 } FILE;
 typedef long fpos_t;
 
+#ifndef NULL
 #define NULL ((void*)0)
+#endif
+
 #define _IOFBF 0
 #define _IOLBF 1
 #define _IONBF 2
@@ -52,7 +55,7 @@ int fsetpos(FILE* stream, const fpos_t* pos);
 long int ftell(FILE* stream);
 size_t fwrite(const void* ptr, size_t size, size_t nmemb, FILE* stream);
 int remove(const char* filename);
-//int rename(const char* old_filename, const char* new_filename);
+// int rename(const char* old_filename, const char* new_filename);
 void rewind(FILE* stream);
 void setbuf(FILE* stream, char* buffer);
 int setvbuf(FILE* stream, char* buffer, int mode, size_t size);
