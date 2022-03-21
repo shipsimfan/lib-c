@@ -33,7 +33,8 @@ struct tm* gmtime_r(const time_t* timep, struct tm* buf);
 struct tm* localtime(const time_t* timep);
 struct tm* localtime_r(const time_t* timep, struct tm* buf);
 time_t mktime(struct tm* timeptr);
-size_t strftime(char* str, size_t maxsize, const char* format, const struct tm* timeptr);
+size_t strftime(char* str, size_t maxsize, const char* format,
+                const struct tm* timeptr);
 time_t time(time_t* timep);
 
 #endif
