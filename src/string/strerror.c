@@ -2,7 +2,7 @@
 
 #include <errno.h>
 
-char *strerror(int errnum) {
+char* strerror(int errnum) {
     switch (errnum) {
     case EOK:
         return "Success";
@@ -94,6 +94,8 @@ char *strerror(int errnum) {
         return "Is file";
     case EINVTHREAD:
         return "Invalid thread";
+    case EINT:
+        return "Interrupted";
     default:
         return "Unknown error";
     }

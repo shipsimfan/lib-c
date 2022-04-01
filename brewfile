@@ -1,6 +1,6 @@
 name = c
 type = library
-languages = c
+languages = c,asm
 
 # Dependencies
 dependencies = lib-kernel
