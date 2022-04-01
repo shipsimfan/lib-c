@@ -3,8 +3,8 @@
 #include <los/signal.h>
 #include <signal.h>
 
-extern void __userspace_signal_handler_asm(u8 signal_number,
-                                           SignalContext context);
+// extern void __userspace_signal_handler_asm(u8 signal_number,
+//                                            SignalContext context);
 
 void __initialize_lib_c(StandardIO* stdio) {
     // Initialize stdio
