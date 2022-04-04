@@ -6,7 +6,7 @@ void (*signal(int sig, void (*func)(int)))(int) {
     if (sig > 255)
         return SIG_DFL;
 
-    /*void (*ret)(int) = __signal_handlers[sig];
+    void (*ret)(int) = __signal_handlers[sig];
     __signal_handlers[sig] = func;
 
     if (func == SIG_IGN)
@@ -19,6 +19,5 @@ void (*signal(int sig, void (*func)(int)))(int) {
     } else
         set_signal_type(sig, SIGNAL_TYPE_USERSPACE);
 
-    return ret;*/
-    return SIG_DFL;
+    return ret;
 }
