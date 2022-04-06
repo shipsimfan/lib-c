@@ -7,6 +7,9 @@ typedef struct {
 } StringIterator;
 
 int __append_string(int ch, StringIterator* iter) {
+    if (*iter->str == NULL)
+        return ch;
+
     *iter->str = ch;
     iter->str++;
     return ch;
