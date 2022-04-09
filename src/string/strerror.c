@@ -96,6 +96,10 @@ char* strerror(int errnum) {
         return "Invalid thread";
     case EINT:
         return "Interrupted";
+    case ENORD:
+        return "No readers";
+    case ENOWR:
+        return "No writers";
     default:
         return "Unknown error";
     }
