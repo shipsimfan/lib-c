@@ -96,7 +96,8 @@ int __read_char_console() {
     if (key.state & KEY_STATE_CAPS_LOCK)
         caps_status = !caps_status;
 
-    if ((key.state & KEY_STATE_LEFT_SHIFT) || (key.state & KEY_STATE_RIGHT_SHIFT))
+    if ((key.state & KEY_STATE_LEFT_SHIFT) ||
+        (key.state & KEY_STATE_RIGHT_SHIFT))
         caps_status = !caps_status;
 
     char c = __translate_keycode(key.code, caps_status);
@@ -140,6 +141,20 @@ int fgetc(FILE* stream) {
             return ret;
         }
 
+        case STDIO_TYPE_PIPE_READER: {
+            int ret;
+            isize status = read_pipe(stream->descriptor, &ret, 1);
+            if (status == ENOWR) {
+                stream->flags |= FILE_FLAG_EOF;
+                return -1;
+            } else if (status < 0) {
+                stream->flags |= FILE_FLAG_ERROR;
+                return -1;
+            }
+
+            return ret;
+        }
+
         default:
             stream->flags |= FILE_FLAG_ERROR;
             return EOF;
@@ -165,18 +180,35 @@ int fgetc(FILE* stream) {
                     stream->buffer[stream->buffer_length] = ret;
                     stream->buffer_length++;
 
-                    if (ret == '\n' || stream->buffer_length == stream->buffer_capacity)
+                    if (ret == '\n' ||
+                        stream->buffer_length == stream->buffer_capacity)
                         break;
                 }
                 break;
             }
 
             case STDIO_TYPE_FILE: {
-                isize bytes_read = read_file(stream->descriptor, stream->buffer, stream->buffer_capacity);
+                isize bytes_read = read_file(stream->descriptor, stream->buffer,
+                                             stream->buffer_capacity);
                 if (bytes_read >= 0) {
                     stream->buffer_length = bytes_read;
                     break;
                 } else if (bytes_read == -1) {
+                    stream->flags |= FILE_FLAG_EOF;
+                    return -1;
+                } else {
+                    stream->flags |= FILE_FLAG_ERROR;
+                    return -1;
+                }
+            }
+
+            case STDIO_TYPE_PIPE_READER: {
+                isize bytes_read = read_pipe(stream->descriptor, stream->buffer,
+                                             stream->buffer_capacity);
+                if (bytes_read >= 0) {
+                    stream->buffer_length = bytes_read;
+                    break;
+                } else if (bytes_read == ENOWR) {
                     stream->flags |= FILE_FLAG_EOF;
                     return -1;
                 } else {

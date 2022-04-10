@@ -17,5 +17,8 @@ int __append_string(int ch, StringIterator* iter) {
 
 int vsprintf(char* str, const char* format, va_list arg) {
     StringIterator iter = {str};
-    return __internal_printf((PrintfOutput)__append_string, &iter, format, arg);
+    int ret =
+        __internal_printf((PrintfOutput)__append_string, &iter, format, arg);
+    *iter.str = 0;
+    return ret;
 }
